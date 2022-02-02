@@ -19,3 +19,5 @@ strafeRight(1.0);
 moveForward(1.0);
 strafeLeft(1.0);
 // TODO: dump
+strafeRight(1.0);
+moveBackward(1.0); // return to warehouse
