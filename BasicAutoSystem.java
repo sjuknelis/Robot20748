@@ -1,4 +1,4 @@
-// Basically how the auto is gonna work (not finished)
+// Basically how the auto is gonna work
 
 strafeRight(1.0);
 moveForward(0.8);
@@ -11,8 +11,11 @@ moveBackward(1.0);
 turnRight();
 turnRight();
 strafeRight(0.2);
-moveBackward(3.5);
+moveBackward(3.5); // pick up freight
 moveForward(1.0);
 turnRight();
 moveForward(1.0);
 strafeRight(1.0);
+moveForward(1.0);
+strafeLeft(1.0);
+// TODO: dump
