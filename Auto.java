@@ -58,25 +58,19 @@ public class Auto {
         drive(0.75);
         turnNinety(2);
 
-        /*slide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        while ( hardstop.isPressed() ) {
-            slide.setPower(-0.5);
-        }
-        slide.setPower(0);
-        slide.setTargetPosition((int) (-6 * TICKS_PER_REV));
+        slide.setTargetPosition((int) (-4 * TICKS_PER_REV));
         slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         slide.setPower(0.5);
         while ( slide.isBusy() ) {}
-        bucketAngle.setPosition(0.8);
-        sleep(1000);
+        slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        /*bucketAngle.setPosition(1.0);
+        op.sleep(2000);
         bucketAngle.setPosition(0.0);
-        slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);*/
-
-        /*slide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        while ( ! hardstop.isPressed() ) {
-            slide.setPower(0.5);
-        }
-        slide.setPower(0);*/
+        op.sleep(1000);*/
+        slide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        slide.setPower(0.125);
+        while ( ! hardstop.isPressed() ) {}
+        slide.setPower(0.0);
 
         strafe(2.6,0.75);
 

@@ -47,36 +47,34 @@ public class SAutoPathBR extends LinearOpMode {
 
         waitForStart();
 
-        strafe(-1.2);
+        /*strafe(-1.2);
         drive(0.75);
-        turnNinety(1);
+        turnNinety(2);*/
 
-        /*try {
-            slide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            while ( hardstop.isPressed() ) {
-                slide.setPower(-0.5);
-            }
-            slide.setPower(0);
-            slide.setTargetPosition((int) (-6 * TICKS_PER_REV));
-            slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            slide.setPower(1);
-            while ( slide.isBusy() ) {}
-            bucketAngle.setPosition(0.0);
-            TimeUnit.MILLISECONDS.sleep(250);
-            gate.setPosition(0.75);
-            TimeUnit.MILLISECONDS.sleep(1000);
-            bucketAngle.setPosition(0.15);
-            TimeUnit.MILLISECONDS.sleep(250);
-            gate.setPosition(0.0);
-            slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        } catch ( InterruptedException e ) {}*/
-
+        drive(0.15);
+        slide.setTargetPosition((int) (-2.5 * TICKS_PER_REV));
+        slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        slide.setPower(0.5);
+        while ( slide.isBusy() ) {}
+        slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        sleep(10000);
+        drive(-0.15);
+        /*bucketAngle.setPosition(1.0);
+        op.sleep(2000);
+        bucketAngle.setPosition(0.0);
+        op.sleep(1000);*/
         /*slide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        slide.setPower(0.125);
+        while ( ! hardstop.isPressed() ) {}
+        slide.setPower(0.0);
+
+        slide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         while ( ! hardstop.isPressed() ) {
             slide.setPower(0.5);
         }
         slide.setPower(0);*/
 
+        /*turnNinety(-1);
         drive(2.3,0.75);
         strafe(0.67,0.2);
 
@@ -90,7 +88,7 @@ public class SAutoPathBR extends LinearOpMode {
         strafe(0.6);
         //strafe(-0.05); // To compensate for edges of mat
 
-        drive(-3.3);
+        drive(-3.3);*/
     }
 
     private void drive(double distance) { drive(distance,1); }

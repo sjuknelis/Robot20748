@@ -51,6 +51,7 @@ public class STeleOp extends OpMode {
 
     @Override
     public void start() {
+        bucketAngle.setPosition(0.0);
     }
 
     @Override
@@ -63,24 +64,26 @@ public class STeleOp extends OpMode {
         blMotor.setPower(drive - strafe - turn);
         brMotor.setPower(drive + strafe + turn);
 
-        if ( gamepad1.left_trigger > 0.0 ) slide.setPower(-0.5 * gamepad1.left_trigger);
-        else if ( gamepad1.right_trigger > 0.0 /*&& ! hardstop.isPressed()*/ ) slide.setPower(0.5 * gamepad1.right_trigger);
+        if ( gamepad1.right_trigger > 0.0 ) slide.setPower(-1.0 * gamepad1.right_trigger);
+        else if ( gamepad1.left_trigger > 0.0 && ! hardstop.isPressed() ) slide.setPower(0.5 * gamepad1.left_trigger);
         else slide.setPower(0.0);
 
         if ( gamepad1.dpad_left ) corner.setPower(1.0);
         else if ( gamepad1.dpad_right ) corner.setPower(-1.0);
         else corner.setPower(0.0);
 
+        bucketAngle.setPosition(0.0);
         try {
             if ( gamepad1.b ) {
-                bucketAngle.setPosition(0.8);
+                slide.setPower(0.0);
+                bucketAngle.setPosition(1.0);
                 TimeUnit.MILLISECONDS.sleep(1000);
                 bucketAngle.setPosition(0.0);
             }
-        } catch ( Exception e ) {}
+        } catch ( InterruptedException e ) {}
 
-        if ( ! gamepad1.y ) intake.setPower(-1.0);
-        else intake.setPower(1.0);
+        if ( ! gamepad1.y ) intake.setPower(1.0);
+        else intake.setPower(-1.0);
     }
 
     @Override
