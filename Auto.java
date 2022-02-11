@@ -11,6 +11,7 @@ public class Auto {
     private DcMotor tlMotor,trMotor,blMotor,brMotor,intake,corner,slide;
     private Servo gate,bucketAngle;
     private TouchSensor hardstop;
+    private OpenCvCamera phoneCam;
     private ElapsedTime runtime = new ElapsedTime();
 
     private final double TICKS_PER_REV = 537.6;
@@ -43,22 +44,45 @@ public class Auto {
     public void redLeft(HardwareMap hardwareMap,LinearOpMode op) {
         initAll(hardwareMap);
         op.waitForStart();
+        int coneRegion = getConeRegion();
         strafe(1.25);
-        redCore(hardwareMap,op);
+        redCore(hardwareMap,op,coneRegion);
     }
 
     public void redRight(HardwareMap hardwareMap,LinearOpMode op) {
         initAll(hardwareMap);
         op.waitForStart();
+        int coneRegion = getConeRegion();
         strafe(-1.15);
-        redCore(hardwareMap,op);
+        redCore(hardwareMap,op,coneRegion);
     }
 
-    public void redCore(HardwareMap hardwareMap,LinearOpMode op) {
+    public void blueLeft(HardwareMap hardwareMap,LinearOpMode op) {
+        initAll(hardwareMap);
+        op.waitForStart();
+        int coneRegion = getConeRegion();
+        strafe(1.0);
+        redCore(hardwareMap,op,coneRegion);
+    }
+
+    public void blueRight(HardwareMap hardwareMap,LinearOpMode op) {
+        initAll(hardwareMap);
+        op.waitForStart();
+        int coneRegion = getConeRegion();
+        strafe(-1.2);
+        redCore(hardwareMap,op,coneRegion);
+    }
+
+    private void redCore(HardwareMap hardwareMap,LinearOpMode op,int coneRegion) {
+        int revolutions;
+        if ( coneRegion == 0 ) revolutions = 4;
+        else revolutions = 2.5;
+
         drive(0.75);
         turnNinety(2);
 
-        slide.setTargetPosition((int) (-4 * TICKS_PER_REV));
+        if ( coneRegion == 2 ) drive(0.15);
+        slide.setTargetPosition((int) (-revolutions * TICKS_PER_REV));
         slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         slide.setPower(0.5);
         while ( slide.isBusy() ) {}
@@ -71,6 +95,7 @@ public class Auto {
         slide.setPower(0.125);
         while ( ! hardstop.isPressed() ) {}
         slide.setPower(0.0);
+        if ( coneRegion == 2 ) drive(-0.15);
 
         strafe(2.6,0.75);
 
@@ -83,7 +108,6 @@ public class Auto {
         trMotor.setPower(0.135);
         blMotor.setPower(-0.125);
         brMotor.setPower(0.135);
-        //while ( cornerdist.getDistance(DistanceUnit.MM) > 130 ) {}
         op.sleep(6000);
         corner.setPower(0.0);
         tlMotor.setPower(0.0);
@@ -98,24 +122,50 @@ public class Auto {
         strafe(-1.0);
         turnNinety(-1);
         strafe(0.62);
-        //strafe(-0.05); // To compensate for edges of mat
 
         drive(3.5);
+    }
 
-        /*double startTime = runtime.seconds();
-        while ( runtime.seconds() - startTime <= 3.0 ) {
-            if ( cornerdist.getDistance(DistanceUnit.MM) > 130 ) {
-                tlMotor.setPower(-0.125);
-                trMotor.setPower(0.125);
-                blMotor.setPower(-0.125);
-                brMotor.setPower(0.125);
-            } else {
-                tlMotor.setPower(0);
-                trMotor.setPower(0);
-                blMotor.setPower(0);
-                brMotor.setPower(0);
-            }
-        }*/
+    private void blueCore(HardwareMap hardwareMap,LinearOpMode op,int coneRegion) {
+        int revolutions;
+        if ( coneRegion == 0 ) revolutions = 4;
+        else revolutions = 2.5;
+
+        drive(0.75);
+        turnNinety(2);
+
+        if ( coneRegion == 2 ) drive(0.15);
+        slide.setTargetPosition((int) (-revolutions * TICKS_PER_REV));
+        slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        slide.setPower(0.5);
+        while ( slide.isBusy() ) {}
+        slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        sleep(10000);
+        if ( coneRegion == 2 ) drive(-0.15);
+        /*bucketAngle.setPosition(1.0);
+        op.sleep(2000);
+        bucketAngle.setPosition(0.0);
+        op.sleep(1000);*/
+        slide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        slide.setPower(0.125);
+        while ( ! hardstop.isPressed() ) {}
+        slide.setPower(0.0);
+
+        turnNinety(-1);
+        drive(2.3,0.75);
+        strafe(0.67,0.2);
+
+        corner.setPower(1.0);
+        try {
+            TimeUnit.MILLISECONDS.sleep(3000);
+        } catch ( InterruptedException e ) {}
+        corner.setPower(0.0);
+
+        drive(-1.0);
+        strafe(0.6);
+        //strafe(-0.05); // To compensate for edges of mat
+
+        drive(-3.3);
     }
 
     private void drive(double distance) { drive(distance,1); }
@@ -151,5 +201,107 @@ public class Auto {
         blMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         trMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         tlMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    }
+
+    public void getConeRegion() {
+      int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+      WebcamName webcamName = hardwareMap.get(WebcamName.class, "camera");
+      phoneCam = OpenCvCameraFactory.getInstance().createWebcam(webcamName, cameraMonitorViewId);
+
+      ConePipeline pipeline = new ConePipeline();
+      phoneCam.setPipeline(pipeline);
+
+      phoneCam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
+        @Override
+        public void onOpened() {
+          phoneCam.startStreaming(320,240,OpenCvCameraRotation.UPRIGHT);
+        }
+
+        @Override
+        public void onError(int errorCode) {}
+      });
+
+      while ( pipeline.getConeRegion() == -1 ) {}
+      return pipeline.getConeRegion();
+    }
+
+    class ConePipeline extends OpenCvPipeline {
+      final double FRAME_WIDTH = 320;
+      final double FRAME_HEIGHT = 240;
+      final double REGION_0_END = (FRAME_WIDTH / 3);
+      final double REGION_1_END = (2 * FRAME_WIDTH / 3);
+
+      private ElapsedTime runtime = new ElapsedTime();
+      private boolean processing = false;
+      private int coneRegion = -1;
+
+      @Override
+      public Mat processFrame(Mat input) {
+        if ( runtime.seconds() <= 1.0 ) return input;
+        if ( processing ) return input;
+        processing = true;
+
+        double r0sum = 0;
+        double r1sum = 0;
+        double r2sum = 0;
+
+        for ( int x = 0; x < REGION_0_END; x++ ) {
+          for ( int y = (int) FRAME_HEIGHT / 2; y < FRAME_HEIGHT; y++ ) {
+            double[] rgb = input.get(y,x);
+            r0sum += rgb[1] - rgb[0] - rgb[2];
+          }
+        }
+        for ( int x = (int) REGION_0_END; x < REGION_1_END; x++ ) {
+          for ( int y = (int) FRAME_HEIGHT / 2; y < FRAME_HEIGHT; y++ ) {
+            double[] rgb = input.get(y,x);
+            r1sum += rgb[1] - rgb[0] - rgb[2];
+          }
+        }
+        for ( int x = (int) REGION_1_END; x < FRAME_WIDTH; x++ ) {
+          for ( int y = (int) FRAME_HEIGHT / 2; y < FRAME_HEIGHT; y++ ) {
+            double[] rgb = input.get(y,x);
+            r2sum += rgb[1] - rgb[0] - rgb[2];
+          }
+        }
+
+        if ( r0sum > r1sum ) {
+          if ( r0sum > r2sum ) coneRegion = 0;
+          else coneRegion = 2;
+        } else {
+          if ( r1sum > r2sum ) coneRegion = 1;
+          else coneRegion = 2;
+        }
+
+        Imgproc.line(
+          input,
+          new Point(REGION_0_END,0),
+          new Point(REGION_0_END,FRAME_HEIGHT),
+          new Scalar(255,0,0),
+          1
+        );
+        Imgproc.line(
+          input,
+          new Point(REGION_1_END,0),
+          new Point(REGION_1_END,FRAME_HEIGHT),
+          new Scalar(255,0,0),
+          1
+        );
+        Imgproc.line(
+          input,
+          new Point(0,FRAME_HEIGHT / 2),
+          new Point(FRAME_WIDTH,FRAME_HEIGHT / 2),
+          new Scalar(255,0,0),
+          1
+        );
+
+        return input;
+      }
+
+      @Override
+      public void onViewportTapped() {}
+
+      public int getConeRegion() {
+        return coneRegion;
+      }
     }
 }
