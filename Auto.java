@@ -245,6 +245,10 @@ public class Auto {
         strafe(0.5);
         drive(2.3,0.75);
 
+        blueDuckOnward(hardwareMap,op,coneRegion);
+    }
+
+    private void blueDuckOnward(HardwareMap hardwareMap,LinearOpMode op,int coneRegion) {
         tlMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         trMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         blMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
