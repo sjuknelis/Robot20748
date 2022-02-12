@@ -76,6 +76,28 @@ public class SCameraTest extends LinearOpMode {
 
     @Override
     public Mat processFrame(Mat input) {
+      Imgproc.line(
+        input,
+        new Point(REGION_0_END,0),
+        new Point(REGION_0_END,FRAME_HEIGHT),
+        new Scalar(255,0,0),
+        1
+      );
+      Imgproc.line(
+        input,
+        new Point(REGION_1_END,0),
+        new Point(REGION_1_END,FRAME_HEIGHT),
+        new Scalar(255,0,0),
+        1
+      );
+      Imgproc.line(
+        input,
+        new Point(0,FRAME_HEIGHT / 2),
+        new Point(FRAME_WIDTH,FRAME_HEIGHT / 2),
+        new Scalar(255,0,0),
+        1
+      );
+
       if ( runtime.seconds() <= 1.0 ) return input;
       if ( processing ) return input;
       processing = true;
@@ -102,6 +124,9 @@ public class SCameraTest extends LinearOpMode {
           r2sum += rgb[1] - rgb[0] - rgb[2];
         }
       }
+      telemetry.addData("r0sum",r0sum);
+      telemetry.addData("r1sum",r1sum);
+      telemetry.addData("r2sum",r2sum);
 
       if ( r0sum > r1sum ) {
         if ( r0sum > r2sum ) coneRegion = 0;
@@ -110,28 +135,6 @@ public class SCameraTest extends LinearOpMode {
         if ( r1sum > r2sum ) coneRegion = 1;
         else coneRegion = 2;
       }
-
-      Imgproc.line(
-        input,
-        new Point(REGION_0_END,0),
-        new Point(REGION_0_END,FRAME_HEIGHT),
-        new Scalar(255,0,0),
-        1
-      );
-      Imgproc.line(
-        input,
-        new Point(REGION_1_END,0),
-        new Point(REGION_1_END,FRAME_HEIGHT),
-        new Scalar(255,0,0),
-        1
-      );
-      Imgproc.line(
-        input,
-        new Point(0,FRAME_HEIGHT / 2),
-        new Point(FRAME_WIDTH,FRAME_HEIGHT / 2),
-        new Scalar(255,0,0),
-        1
-      );
 
       return input;
     }

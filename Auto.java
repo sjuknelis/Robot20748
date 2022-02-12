@@ -1,11 +1,23 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import java.util.concurrent.TimeUnit;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.opencv.core.Mat;
+import org.opencv.core.Point;
+import org.opencv.core.Scalar;
+import org.opencv.imgproc.Imgproc;
+import org.openftc.easyopencv.OpenCvCamera;
+import org.openftc.easyopencv.OpenCvCameraFactory;
+import org.openftc.easyopencv.OpenCvCameraRotation;
+import org.openftc.easyopencv.OpenCvInternalCamera;
+import org.openftc.easyopencv.OpenCvPipeline;
 
 public class Auto {
     private DcMotor tlMotor,trMotor,blMotor,brMotor,intake,corner,slide;
@@ -44,7 +56,7 @@ public class Auto {
     public void redLeft(HardwareMap hardwareMap,LinearOpMode op) {
         initAll(hardwareMap);
         op.waitForStart();
-        int coneRegion = getConeRegion();
+        int coneRegion = getConeRegion(hardwareMap,op);
         strafe(1.25);
         redCore(hardwareMap,op,coneRegion);
     }
@@ -52,7 +64,7 @@ public class Auto {
     public void redRight(HardwareMap hardwareMap,LinearOpMode op) {
         initAll(hardwareMap);
         op.waitForStart();
-        int coneRegion = getConeRegion();
+        int coneRegion = getConeRegion(hardwareMap,op);
         strafe(-1.15);
         redCore(hardwareMap,op,coneRegion);
     }
@@ -60,45 +72,123 @@ public class Auto {
     public void blueLeft(HardwareMap hardwareMap,LinearOpMode op) {
         initAll(hardwareMap);
         op.waitForStart();
-        int coneRegion = getConeRegion();
+        int coneRegion = 2;//getConeRegion(hardwareMap,op);
         strafe(1.0);
-        redCore(hardwareMap,op,coneRegion);
+        blueCore(hardwareMap,op,coneRegion);
     }
 
     public void blueRight(HardwareMap hardwareMap,LinearOpMode op) {
         initAll(hardwareMap);
         op.waitForStart();
-        int coneRegion = getConeRegion();
-        strafe(-1.2);
-        redCore(hardwareMap,op,coneRegion);
+        int coneRegion = getConeRegion(hardwareMap,op);
+        strafe(-1.275);
+        blueCore(hardwareMap,op,coneRegion);
+    }
+
+    public void redLeftDuck(HardwareMap hardwareMap,LinearOpMode op) {
+        initAll(hardwareMap);
+        op.waitForStart();
+        int coneRegion = getConeRegion(hardwareMap,op);
+        drive(0.5);
+        turnNinety(2);
+        strafe(1.6,0.75);
+        redDuckOnward(hardwareMap,op,coneRegion);
+    }
+
+    public void redRightDuck(HardwareMap hardwareMap,LinearOpMode op) {
+        initAll(hardwareMap);
+        op.waitForStart();
+        int coneRegion = getConeRegion(hardwareMap,op);
+        drive(0.5);
+        turnNinety(2);
+        strafe(3.6,0.75);
+        redDuckOnward(hardwareMap,op,coneRegion);
+    }
+
+    public void blueLeftDuck(HardwareMap hardwareMap,LinearOpMode op) {
+        initAll(hardwareMap);
+        op.waitForStart();
+        int coneRegion = getConeRegion(hardwareMap,op);
+        drive(0.5);
+        turnNinety(1);
+        drive(-3.6,0.75);
+        blueDuckOnward(hardwareMap,op,coneRegion);
+    }
+
+    public void blueRightDuck(HardwareMap hardwareMap,LinearOpMode op) {
+        initAll(hardwareMap);
+        op.waitForStart();
+        int coneRegion = getConeRegion(hardwareMap,op);
+        drive(0.5);
+        turnNinety(1);
+        drive(-1.6,0.75);
+        blueDuckOnward(hardwareMap,op,coneRegion);
+    }
+
+    public void redLeftPark(HardwareMap hardwareMap,LinearOpMode op) {
+        initAll(hardwareMap);
+        op.waitForStart();
+        turnNinety(1);
+        strafe(-0.5,0.2);
+        drive(3.3);
+    }
+
+    public void redRightPark(HardwareMap hardwareMap,LinearOpMode op) {
+        initAll(hardwareMap);
+        op.waitForStart();
+        turnNinety(1);
+        strafe(-0.5,0.2);
+        drive(1.3);
+    }
+
+    public void blueLeftPark(HardwareMap hardwareMap,LinearOpMode op) {
+        initAll(hardwareMap);
+        op.waitForStart();
+        turnNinety(-1);
+        strafe(-0.5,0.2);
+        drive(1.3);
+    }
+
+    public void blueRightPark(HardwareMap hardwareMap,LinearOpMode op) {
+        initAll(hardwareMap);
+        op.waitForStart();
+        turnNinety(-1);
+        strafe(-0.5,0.2);
+        drive(3.3);
     }
 
     private void redCore(HardwareMap hardwareMap,LinearOpMode op,int coneRegion) {
-        int revolutions;
-        if ( coneRegion == 0 ) revolutions = 4;
-        else revolutions = 2.5;
+        double revolutions;
+        if ( coneRegion <= 0 ) revolutions = 4;
+        else revolutions = 2.95;
 
         drive(0.75);
         turnNinety(2);
 
+        bucketAngle.setPosition(0.05);
         if ( coneRegion == 2 ) drive(0.15);
         slide.setTargetPosition((int) (-revolutions * TICKS_PER_REV));
         slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         slide.setPower(0.5);
         while ( slide.isBusy() ) {}
         slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        /*bucketAngle.setPosition(1.0);
-        op.sleep(2000);
+        bucketAngle.setPosition(1.0);
+        op.sleep(1000);
         bucketAngle.setPosition(0.0);
-        op.sleep(1000);*/
+        op.sleep(500);
         slide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         slide.setPower(0.125);
         while ( ! hardstop.isPressed() ) {}
         slide.setPower(0.0);
         if ( coneRegion == 2 ) drive(-0.15);
 
+        drive(0.5);
         strafe(2.6,0.75);
 
+        redDuckOnward(hardwareMap,op,coneRegion);
+    }
+
+    private void redDuckOnward(HardwareMap hardwareMap,LinearOpMode op,int coneRegion) {
         tlMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         trMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         blMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -108,7 +198,7 @@ public class Auto {
         trMotor.setPower(0.135);
         blMotor.setPower(-0.125);
         brMotor.setPower(0.135);
-        op.sleep(6000);
+        op.sleep(5000);
         corner.setPower(0.0);
         tlMotor.setPower(0.0);
         trMotor.setPower(0.0);
@@ -127,39 +217,53 @@ public class Auto {
     }
 
     private void blueCore(HardwareMap hardwareMap,LinearOpMode op,int coneRegion) {
-        int revolutions;
-        if ( coneRegion == 0 ) revolutions = 4;
-        else revolutions = 2.5;
+        double revolutions;
+        if ( coneRegion <= 0 ) revolutions = 4;
+        else revolutions = 2.95;
 
         drive(0.75);
         turnNinety(2);
 
+        bucketAngle.setPosition(0.05);
         if ( coneRegion == 2 ) drive(0.15);
         slide.setTargetPosition((int) (-revolutions * TICKS_PER_REV));
         slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         slide.setPower(0.5);
         while ( slide.isBusy() ) {}
         slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        sleep(10000);
-        if ( coneRegion == 2 ) drive(-0.15);
-        /*bucketAngle.setPosition(1.0);
-        op.sleep(2000);
+        bucketAngle.setPosition(1.0);
+        op.sleep(1000);
         bucketAngle.setPosition(0.0);
-        op.sleep(1000);*/
+        op.sleep(500);
+        if ( coneRegion == 2 ) drive(-0.15);
         slide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        slide.setPower(0.125);
+        slide.setPower(0.25);
         while ( ! hardstop.isPressed() ) {}
         slide.setPower(0.0);
 
         turnNinety(-1);
+        strafe(0.5);
         drive(2.3,0.75);
-        strafe(0.67,0.2);
 
-        corner.setPower(1.0);
-        try {
-            TimeUnit.MILLISECONDS.sleep(3000);
-        } catch ( InterruptedException e ) {}
+        tlMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        trMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        blMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        brMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        corner.setPower(-1.0);
+        tlMotor.setPower(-0.125);
+        trMotor.setPower(-0.125);
+        blMotor.setPower(0.125);
+        brMotor.setPower(0.125);
+        op.sleep(5000);
         corner.setPower(0.0);
+        tlMotor.setPower(0.0);
+        trMotor.setPower(0.0);
+        blMotor.setPower(0.0);
+        brMotor.setPower(0.0);
+        brMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        blMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        trMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        tlMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         drive(-1.0);
         strafe(0.6);
@@ -203,7 +307,7 @@ public class Auto {
         tlMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
-    public void getConeRegion() {
+    public int getConeRegion(HardwareMap hardwareMap,LinearOpMode op) {
       int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
       WebcamName webcamName = hardwareMap.get(WebcamName.class, "camera");
       phoneCam = OpenCvCameraFactory.getInstance().createWebcam(webcamName, cameraMonitorViewId);
@@ -221,7 +325,9 @@ public class Auto {
         public void onError(int errorCode) {}
       });
 
-      while ( pipeline.getConeRegion() == -1 ) {}
+      while ( pipeline.getConeRegion() == -1 && runtime.seconds() < 4 ) {}
+      op.telemetry.addData("coneRegion",pipeline.getConeRegion());
+      op.telemetry.update();
       return pipeline.getConeRegion();
     }
 
@@ -237,6 +343,28 @@ public class Auto {
 
       @Override
       public Mat processFrame(Mat input) {
+        Imgproc.line(
+          input,
+          new Point(REGION_0_END,0),
+          new Point(REGION_0_END,FRAME_HEIGHT),
+          new Scalar(255,0,0),
+          1
+        );
+        Imgproc.line(
+          input,
+          new Point(REGION_1_END,0),
+          new Point(REGION_1_END,FRAME_HEIGHT),
+          new Scalar(255,0,0),
+          1
+        );
+        Imgproc.line(
+          input,
+          new Point(0,FRAME_HEIGHT / 2),
+          new Point(FRAME_WIDTH,FRAME_HEIGHT / 2),
+          new Scalar(255,0,0),
+          1
+        );
+
         if ( runtime.seconds() <= 1.0 ) return input;
         if ( processing ) return input;
         processing = true;
@@ -271,28 +399,6 @@ public class Auto {
           if ( r1sum > r2sum ) coneRegion = 1;
           else coneRegion = 2;
         }
-
-        Imgproc.line(
-          input,
-          new Point(REGION_0_END,0),
-          new Point(REGION_0_END,FRAME_HEIGHT),
-          new Scalar(255,0,0),
-          1
-        );
-        Imgproc.line(
-          input,
-          new Point(REGION_1_END,0),
-          new Point(REGION_1_END,FRAME_HEIGHT),
-          new Scalar(255,0,0),
-          1
-        );
-        Imgproc.line(
-          input,
-          new Point(0,FRAME_HEIGHT / 2),
-          new Point(FRAME_WIDTH,FRAME_HEIGHT / 2),
-          new Scalar(255,0,0),
-          1
-        );
 
         return input;
       }

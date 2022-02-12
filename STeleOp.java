@@ -19,8 +19,6 @@ public class STeleOp extends OpMode {
     private DcMotor tlMotor,trMotor,blMotor,brMotor,intake,corner,slide;
     private Servo gate,bucketAngle;
     private TouchSensor hardstop;
-    private ElapsedTime runtime = new ElapsedTime();
-    private double dumpStart = 0;
 
     private final double TICKS_PER_REV = 537.6;
 
@@ -74,14 +72,17 @@ public class STeleOp extends OpMode {
         else if ( gamepad1.dpad_right ) corner.setPower(-1.0);
         else corner.setPower(0.0);
 
-        if ( gamepad.b ) {
-          dumpStart = runtime.seconds();
-          bucketAngle.setPosition(1.0);
-        }
-        if ( runtime.seconds() - dumpStart < 1.0 ) slide.setPower(0.0);
-        else bucketAngle.setPosition(0.0);
+        bucketAngle.setPosition(0.0);
+        try {
+            if ( gamepad1.b ) {
+                slide.setPower(0.0);
+                bucketAngle.setPosition(1.0);
+                TimeUnit.MILLISECONDS.sleep(1000);
+                bucketAngle.setPosition(0.05);
+            }
+        } catch ( InterruptedException e ) {}
 
-        if ( ! gamepad1.y ) intake.setPower(1.0);
+        if ( ! gamepad1.right_bumper ) intake.setPower(1.0);
         else intake.setPower(-1.0);
     }
 
