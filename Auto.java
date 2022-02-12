@@ -399,6 +399,7 @@ public class Auto {
           if ( r1sum > r2sum ) coneRegion = 1;
           else coneRegion = 2;
         }
+        coneRegion = 3 - coneRegion; // 2 is left, 1 is middle, 0 is right
 
         return input;
       }
