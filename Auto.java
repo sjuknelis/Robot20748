@@ -53,11 +53,83 @@ public class Auto {
         bucketAngle.setDirection(Servo.Direction.FORWARD);
     }
 
+    public void redQualifier(HardwareMap hardwareMap,LinearOpMode op) {
+        initAll(hardwareMap);
+        int coneRegion = getConeRegion(hardwareMap,op);
+        op.waitForStart();
+        drive(0.5);
+        turnNinety(2);
+        strafe(2,0.5);
+
+        tlMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        trMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        blMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        brMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        corner.setPower(1.0);
+        tlMotor.setPower(-0.125);
+        trMotor.setPower(0.135);
+        blMotor.setPower(-0.125);
+        brMotor.setPower(0.135);
+        op.sleep(5000);
+        corner.setPower(0.0);
+        tlMotor.setPower(0.0);
+        trMotor.setPower(0.0);
+        blMotor.setPower(0.0);
+        brMotor.setPower(0.0);
+        brMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        blMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        trMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        tlMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        drive(-0.75);
+    }
+
+    public void blueQualifier(HardwareMap hardwareMap,LinearOpMode op) {
+        initAll(hardwareMap);
+        int coneRegion = getConeRegion(hardwareMap,op);
+        op.waitForStart();
+        drive(0.5);
+        turnNinety(1);
+        drive(2,0.5);
+
+        tlMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        trMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        blMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        brMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        corner.setPower(-1.0);
+        tlMotor.setPower(-0.125);
+        trMotor.setPower(-0.125);
+        blMotor.setPower(0.125);
+        brMotor.setPower(0.125);
+        op.sleep(7000);
+        corner.setPower(0.0);
+        tlMotor.setPower(0.0);
+        trMotor.setPower(0.0);
+        blMotor.setPower(0.0);
+        brMotor.setPower(0.0);
+        brMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        blMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        trMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        tlMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        strafe(-1);
+    }
+
+    public void blueQualifierWithoutDucks(HardwareMap hardwareMap,LinearOpMode op) {
+        initAll(hardwareMap);
+        int coneRegion = getConeRegion(hardwareMap,op);
+        op.waitForStart();
+        drive(0.5);
+        turnNinety(1);
+        drive(2,0.5);
+        strafe(-0.7);
+    }
+
     public void redLeft(HardwareMap hardwareMap,LinearOpMode op) {
         initAll(hardwareMap);
-        op.waitForStart();
         int coneRegion = getConeRegion(hardwareMap,op);
-        strafe(1.25);
+        op.waitForStart();
+        strafe(1.2);
         redCore(hardwareMap,op,coneRegion);
     }
 
@@ -79,10 +151,61 @@ public class Auto {
 
     public void blueRight(HardwareMap hardwareMap,LinearOpMode op) {
         initAll(hardwareMap);
-        op.waitForStart();
         int coneRegion = getConeRegion(hardwareMap,op);
+        op.waitForStart();
         strafe(-1.275);
         blueCore(hardwareMap,op,coneRegion);
+    }
+
+    public void blueLeftDump(HardwareMap hardwareMap,LinearOpMode op) {
+        initAll(hardwareMap);
+        op.waitForStart();
+        int coneRegion = 0;
+        double revolutions;
+        if ( coneRegion <= 0 ) revolutions = 3.75;
+        else revolutions = 2.95;
+
+        drive(0.7);
+        strafe(1.2);
+        turnNinety(2);
+
+        bucketAngle.setPosition(0.05);
+        if ( coneRegion == 2 ) drive(0.1);
+        slide.setTargetPosition((int) (-revolutions * TICKS_PER_REV));
+        slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        slide.setPower(0.5);
+        while ( slide.isBusy() ) {}
+        slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        bucketAngle.setPosition(1.0);
+        op.sleep(1000);
+        bucketAngle.setPosition(0.0);
+        op.sleep(500);
+        slide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        slide.setPower(0.125);
+        while ( ! hardstop.isPressed() ) {}
+        slide.setPower(0.0);
+        if ( coneRegion == 2 ) drive(-0.1);
+
+        turnNinety(1);
+        strafe(-1.2,0.75);
+
+        tlMotor.setTargetPosition((int) (-2.3 * MM_PER_TILE / MM_PER_REV * TICKS_PER_REV));
+        trMotor.setTargetPosition((int) (2.3 * MM_PER_TILE / MM_PER_REV * TICKS_PER_REV));
+        blMotor.setTargetPosition((int) (-2.3 * MM_PER_TILE / MM_PER_REV * TICKS_PER_REV));
+        brMotor.setTargetPosition((int) (2.3 * MM_PER_TILE / MM_PER_REV * TICKS_PER_REV));
+        tlMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        trMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        blMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        brMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        tlMotor.setPower(0.5);
+        trMotor.setPower(0.55);
+        blMotor.setPower(0.5);
+        brMotor.setPower(0.55);
+        while ( tlMotor.isBusy() || trMotor.isBusy() || blMotor.isBusy() || brMotor.isBusy() ) {}
+        brMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        blMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        trMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        tlMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     public void redLeftDuck(HardwareMap hardwareMap,LinearOpMode op) {
@@ -159,14 +282,14 @@ public class Auto {
 
     private void redCore(HardwareMap hardwareMap,LinearOpMode op,int coneRegion) {
         double revolutions;
-        if ( coneRegion <= 0 ) revolutions = 4;
+        if ( coneRegion <= 0 ) revolutions = 3.75;
         else revolutions = 2.95;
 
         drive(0.75);
         turnNinety(2);
 
         bucketAngle.setPosition(0.05);
-        if ( coneRegion == 2 ) drive(0.15);
+        if ( coneRegion == 2 ) drive(0.1);
         slide.setTargetPosition((int) (-revolutions * TICKS_PER_REV));
         slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         slide.setPower(0.5);
@@ -180,10 +303,10 @@ public class Auto {
         slide.setPower(0.125);
         while ( ! hardstop.isPressed() ) {}
         slide.setPower(0.0);
-        if ( coneRegion == 2 ) drive(-0.15);
+        if ( coneRegion == 2 ) drive(-0.1);
 
         drive(0.5);
-        strafe(2.6,0.75);
+        strafe(2.6,0.5);
 
         redDuckOnward(hardwareMap,op,coneRegion);
     }
@@ -213,12 +336,12 @@ public class Auto {
         turnNinety(-1);
         strafe(0.62);
 
-        drive(3.5);
+        drive(3.65);
     }
 
     private void blueCore(HardwareMap hardwareMap,LinearOpMode op,int coneRegion) {
         double revolutions;
-        if ( coneRegion <= 0 ) revolutions = 4;
+        if ( coneRegion <= 0 ) revolutions = 3.75;
         else revolutions = 2.95;
 
         drive(0.75);
@@ -243,7 +366,7 @@ public class Auto {
 
         turnNinety(-1);
         strafe(0.5);
-        drive(2.3,0.75);
+        drive(2.3,0.5);
 
         blueDuckOnward(hardwareMap,op,coneRegion);
     }
@@ -273,7 +396,7 @@ public class Auto {
         strafe(0.6);
         //strafe(-0.05); // To compensate for edges of mat
 
-        drive(-3.3);
+        drive(-3.5);
     }
 
     private void drive(double distance) { drive(distance,1); }
@@ -312,7 +435,9 @@ public class Auto {
     }
 
     public int getConeRegion(HardwareMap hardwareMap,LinearOpMode op) {
-      int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+      return 0;
+    }
+      /*int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
       WebcamName webcamName = hardwareMap.get(WebcamName.class, "camera");
       phoneCam = OpenCvCameraFactory.getInstance().createWebcam(webcamName, cameraMonitorViewId);
 
@@ -403,7 +528,7 @@ public class Auto {
           if ( r1sum > r2sum ) coneRegion = 1;
           else coneRegion = 2;
         }
-        coneRegion = 3 - coneRegion; // 2 is left, 1 is middle, 0 is right
+        coneRegion = 0;//2 - coneRegion; // 2 is left, 1 is middle, 0 is right
 
         return input;
       }
@@ -414,5 +539,5 @@ public class Auto {
       public int getConeRegion() {
         return coneRegion;
       }
-    }
+    }*/
 }
