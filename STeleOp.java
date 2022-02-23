@@ -19,6 +19,9 @@ public class STeleOp extends OpMode {
     private DcMotor tlMotor,trMotor,blMotor,brMotor,intake,corner,slide;
     private Servo gate,bucketAngle;
     private TouchSensor hardstop;
+    private ElapsedTime runtime = new ElapsedTime();
+    private int dumpState = -1;
+    private double dumpTime;
 
     private final double TICKS_PER_REV = 537.6;
 
@@ -64,23 +67,53 @@ public class STeleOp extends OpMode {
         blMotor.setPower(drive - strafe - turn);
         brMotor.setPower(drive + strafe + turn);
 
-        if ( gamepad1.right_trigger > 0.0 ) slide.setPower(-1.0 * gamepad1.right_trigger);
-        else if ( gamepad1.left_trigger > 0.0 && ! hardstop.isPressed() ) slide.setPower(0.5 * gamepad1.left_trigger);
-        else slide.setPower(0.0);
+        if ( dumpState == -1 ) {
+          bucketAngle.setPosition(0.0);
+          if ( gamepad1.right_trigger > 0.0 ) slide.setPower(-1.0 * gamepad1.right_trigger);
+          else if ( gamepad1.left_trigger > 0.0 && ! hardstop.isPressed() ) slide.setPower(0.5 * gamepad1.left_trigger);
+          else slide.setPower(0.0);
+        }
 
         if ( gamepad1.dpad_left ) corner.setPower(1.0);
         else if ( gamepad1.dpad_right ) corner.setPower(-1.0);
         else corner.setPower(0.0);
 
-        bucketAngle.setPosition(0.0);
-        try {
-            if ( gamepad1.b ) {
-                slide.setPower(0.0);
-                bucketAngle.setPosition(1.0);
-                TimeUnit.MILLISECONDS.sleep(1000);
-                bucketAngle.setPosition(0.05);
-            }
-        } catch ( InterruptedException e ) {}
+        telemetry.addData("dumpState",dumpState);
+        telemetry.update();
+
+        if ( dumpState == -1 && gamepad1.b ) {
+          dumpState = 0;
+          slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+          slide.setTargetPosition((int) (-4.0 * TICKS_PER_REV));
+          slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+          slide.setPower(1.0);
+        }
+        if ( dumpState == 0 && ! slide.isBusy() ) {
+          dumpState = 1;
+          dumpTime = runtime.seconds();
+          bucketAngle.setPosition(1.0);
+        }
+        if ( dumpState == 1 && runtime.seconds() - dumpTime >= 1.0 ) {
+          dumpState = 2;
+          dumpTime = runtime.seconds();
+          bucketAngle.setPosition(0.0);
+        }
+        if ( dumpState == 2 && runtime.seconds() - dumpTime >= 0.5 ) {
+          dumpState = 3;
+          slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+          slide.setTargetPosition((int) (4.0 * TICKS_PER_REV));
+          slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+          slide.setPower(1.0);
+        }
+        if ( dumpState == 3 && ! slide.isBusy() ) {
+          dumpState = 4;
+          slide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+          slide.setPower(0.125);
+        }
+        if ( dumpState == 4 && hardstop.isPressed() ) {
+          dumpState = -1;
+          slide.setPower(0.0);
+        }
 
         if ( ! gamepad1.right_bumper ) intake.setPower(1.0);
         else intake.setPower(-1.0);

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>automodel</title>
+  <style>
+
+  </style>
+  <script src="script.js"></script>
+</head>
+<body>
+  <table>
+    <tr>
+      <td>
+        <canvas id="canvas" width="500" height="500"></canvas>
+      </td>
+      <td>
+        <textarea id="codeBox" rows="20" cols="50" onkeyup="renderFrame()"></textarea>
+        <br />
+        <select id="position" onchange="renderFrame()">
+          <option value="0">Red Duck-side</option>
+          <option value="1">Red Warehouse-side</option>
+          <option value="2">Blue Duck-side</option>
+          <option value="3">Blue Warehouse-side</option>
+        </select>
+        <br />
+        <input type="number" id="slippage" onchange="renderFrame()" value="0.05" />
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
