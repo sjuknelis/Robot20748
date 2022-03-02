@@ -12,7 +12,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 @Autonomous(name="SAutoPathRR", group="Linear Opmode")
-
 public class SAutoPathRR extends LinearOpMode {
     @Override
     public void runOpMode() {

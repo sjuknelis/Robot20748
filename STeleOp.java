@@ -42,7 +42,7 @@ public class STeleOp extends OpMode {
     private ElapsedTime runtime = new ElapsedTime();
     private int dumpState = -1;
     private double dumpTime;
-    private DarkPipeline pipeline;
+    private ConePipeline pipeline;
 
     private final double TICKS_PER_REV = 537.6;
     private final double MM_PER_REV = Math.PI * 96;
@@ -91,7 +91,7 @@ public class STeleOp extends OpMode {
       WebcamName webcamName = hardwareMap.get(WebcamName.class, "camera");
       phoneCam = OpenCvCameraFactory.getInstance().createWebcam(webcamName, cameraMonitorViewId);
 
-      pipeline = new DarkPipeline();
+      pipeline = new ConePipeline();
       phoneCam.setPipeline(pipeline);
 
       phoneCam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
