@@ -42,7 +42,9 @@ public class STeleOp extends OpMode {
     private ElapsedTime runtime = new ElapsedTime();
     private int dumpState = -1;
     private double dumpTime;
-    private ConePipeline pipeline;
+    private DarkPipeline pipeline;
+    private int alignDir = 1;
+    private double initTime = 0;
 
     private final double TICKS_PER_REV = 537.6;
     private final double MM_PER_REV = Math.PI * 96;
@@ -91,7 +93,7 @@ public class STeleOp extends OpMode {
       WebcamName webcamName = hardwareMap.get(WebcamName.class, "camera");
       phoneCam = OpenCvCameraFactory.getInstance().createWebcam(webcamName, cameraMonitorViewId);
 
-      pipeline = new ConePipeline();
+      pipeline = new DarkPipeline();
       phoneCam.setPipeline(pipeline);
 
       phoneCam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
@@ -115,6 +117,8 @@ public class STeleOp extends OpMode {
 
     @Override
     public void loop() {
+      if ( initTime == 0 ) initTime = runtime.seconds();
+
       double strafe = gamepad1.left_stick_x;
       double drive = -gamepad1.left_stick_y;
       double turn = -gamepad1.right_stick_x * 0.5;
@@ -172,7 +176,9 @@ public class STeleOp extends OpMode {
       }
 
       if ( gamepad1.x ) {
-        strafe(-2 + (6.5/24),1);
+        intake.setPower(0);
+        secondIntake.setPower(0);
+        strafe(alignDir * (-2 + (6.5/24)),1);
         double start = runtime.seconds();
         while ( pipeline.getAvgD() < 8000 && runtime.seconds() - start < 0.25 ) {
             telemetry.addData("avgD",pipeline.getAvgD());
@@ -190,13 +196,16 @@ public class STeleOp extends OpMode {
         brMotor.setPower(0);
       }
 
-      if ( ! gamepad1.right_bumper ) {
-        //intake.setPower(1.0);
-        //secondIntake.setPower(1.0);
+      if ( gamepad1.right_bumper || runtime.seconds() - initTime <= 1.0 ) {
+        intake.setPower(-1.0);
+        secondIntake.setPower(1.0);
       } else {
-        //intake.setPower(-1.0);
-        //secondIntake.setPower(-1.0);
+        intake.setPower(1.0);
+        secondIntake.setPower(-1.0);
       }
+
+      if ( gamepad1.y ) alignDir = -1;
+      if ( gamepad1.a ) alignDir = 1;
     }
 
     private void strafe(double distance,double speed) { // left is negative, right is positive
@@ -221,7 +230,12 @@ public class STeleOp extends OpMode {
         trMotor.setPower(speed);
         blMotor.setPower(speed);
         brMotor.setPower(speed);
-        while ( tlMotor.isBusy() || trMotor.isBusy() || blMotor.isBusy() || brMotor.isBusy() ) {}
+        while (
+          Math.abs(tlMotor.getCurrentPosition() - tlMotor.getTargetPosition()) > 10 ||
+          Math.abs(trMotor.getCurrentPosition() - trMotor.getTargetPosition()) > 10 ||
+          Math.abs(blMotor.getCurrentPosition() - blMotor.getTargetPosition()) > 10 ||
+          Math.abs(brMotor.getCurrentPosition() - brMotor.getTargetPosition()) > 10
+        ) {}
         brMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         blMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         trMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);

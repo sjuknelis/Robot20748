@@ -105,6 +105,10 @@ public class SAutoTesting extends LinearOpMode {
         drive(-0.75,1);
         strafe(-1,1);
         drive(-0.1,1);
+        brMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        blMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        trMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        tlMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         double start = runtime.seconds();
         while ( pipeline.getAvgD() > 100 && runtime.seconds() - start < 0.5 ) {
             telemetry.addData("avgD",pipeline.getAvgD());
@@ -120,8 +124,11 @@ public class SAutoTesting extends LinearOpMode {
         trMotor.setPower(0);
         blMotor.setPower(0);
         brMotor.setPower(0);
+        tlMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        trMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        blMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        brMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         sleep(500);
-        drive(0.1,1);
 
         bucketAngle.setPosition(0.05);
         slide.setTargetPosition((int) (-2.5 * TICKS_PER_REV));
@@ -156,10 +163,6 @@ public class SAutoTesting extends LinearOpMode {
     }
 
     private void moveMotors(double tlMove,double trMove,double blMove,double brMove,double speed) {
-        brMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        blMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        trMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        tlMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         tlMotor.setTargetPosition((int) (-tlMove * MM_PER_TILE / MM_PER_REV * TICKS_PER_REV));
         trMotor.setTargetPosition((int) (trMove * MM_PER_TILE / MM_PER_REV * TICKS_PER_REV));
         blMotor.setTargetPosition((int) (-blMove * MM_PER_TILE / MM_PER_REV * TICKS_PER_REV));
@@ -177,10 +180,6 @@ public class SAutoTesting extends LinearOpMode {
         blMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         trMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         tlMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        brMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        blMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        trMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        tlMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         /*Orientation angles;
         double delta = 0.0;
         double startTime = runtime.seconds();

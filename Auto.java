@@ -27,7 +27,7 @@ public class Auto {
     private BNO055IMU imu;
     private OpenCvCamera phoneCam;
     private ElapsedTime runtime = new ElapsedTime();
-    private ConePipeline pipeline;
+    private ConePipeline pipeline = new ConePipeline();
 
     private final double TICKS_PER_REV = 537.6;
     private final double MM_PER_REV = Math.PI * 96;
@@ -57,7 +57,10 @@ public class Auto {
         gate.setDirection(Servo.Direction.FORWARD);
         bucketAngle.setDirection(Servo.Direction.FORWARD);
 
-        pipeline = new ConePipeline();
+        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        WebcamName webcamName = hardwareMap.get(WebcamName.class, "camera");
+        phoneCam = OpenCvCameraFactory.getInstance().createWebcam(webcamName, cameraMonitorViewId);
+
         phoneCam.setPipeline(pipeline);
 
         phoneCam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
@@ -150,10 +153,27 @@ public class Auto {
         op.telemetry.addData("coneRegion",pipeline.getConeRegion());
         op.telemetry.update();
 
-        double revolutions = 2.5;
-        if ( pipeline.getConeRegion() == 0 ) revolutions = 3.5;
+        brMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        blMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        trMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        tlMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        double start = runtime.seconds();
+        while ( pipeline.getAvgD() > 100 && runtime.seconds() - start < 0.5 ) {
+            tlMotor.setPower(0.2);
+            trMotor.setPower(-0.2);
+            blMotor.setPower(0.2);
+            brMotor.setPower(-0.2);
+        }
+        tlMotor.setPower(0);
+        trMotor.setPower(0);
+        blMotor.setPower(0);
+        brMotor.setPower(0);
+        tlMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        trMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        blMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        brMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        op.sleep(500);
 
-        if ( pipeline.getConeRegion() == 2 ) drive(0.1);
         bucketAngle.setPosition(0.05);
         slide.setTargetPosition((int) (-3.5 * TICKS_PER_REV));
         slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -165,10 +185,9 @@ public class Auto {
         bucketAngle.setPosition(0.0);
         op.sleep(500);
         slide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        slide.setPower(0.25);
+        slide.setPower(0.5);
         while ( ! hardstop.isPressed() ) {}
         slide.setPower(0.0);
-        drive(-0.1);
 
         turnNinety(-1);
         strafe(0.5);
@@ -183,10 +202,10 @@ public class Auto {
         blMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         brMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         corner.setPower(-1.0);
-        tlMotor.setPower(-0.125);
-        trMotor.setPower(-0.125);
-        blMotor.setPower(0.125);
-        brMotor.setPower(0.125);
+        tlMotor.setPower(-0.2);
+        trMotor.setPower(-0.2);
+        blMotor.setPower(0.2);
+        brMotor.setPower(0.2);
         op.sleep(5000);
         corner.setPower(0.0);
         tlMotor.setPower(0.0);
@@ -199,10 +218,10 @@ public class Auto {
         tlMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         drive(-1.0);
-        strafe(0.6);
+        strafe(0.75);
         //strafe(-0.05); // To compensate for edges of mat
 
-        drive(-3.5);
+        drive(-3.25);
     }
 
     public void redQualifier(HardwareMap hardwareMap,LinearOpMode op) {
@@ -292,17 +311,17 @@ public class Auto {
         initAll(op);
         op.waitForStart();
         drive(-0.75);
-        strafe(-1.0);
-        drive(-0.25);
+        strafe(-1.15);
+        drive(-0.05);
         blueCore(op);
     }
 
     public void blueRight(HardwareMap hardwareMap,LinearOpMode op) {
         initAll(op);
         op.waitForStart();
-        drive(-0.75);
-        strafe(-1.275);
-        drive(-0.25);
+        drive(-0.7);
+        strafe(1.275);
+        drive(-0.05);
         blueCore(op);
     }
 
