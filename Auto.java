@@ -95,23 +95,7 @@ public class Auto {
     }
 
     private void redCore(LinearOpMode op) {
-        drive(0.75);
-        turnNinety(2);
-
-        bucketAngle.setPosition(0.05);
-        slide.setTargetPosition((int) (-3.5 * TICKS_PER_REV));
-        slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        slide.setPower(0.5);
-        while ( slide.isBusy() ) {}
-        slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        bucketAngle.setPosition(1.0);
-        op.sleep(1000);
-        bucketAngle.setPosition(0.0);
-        op.sleep(500);
-        slide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        slide.setPower(0.125);
-        while ( ! hardstop.isPressed() ) {}
-        slide.setPower(0.0);
+        dump(op);
 
         drive(0.5);
         strafe(2.6,0.5);
@@ -182,7 +166,7 @@ public class Auto {
         strafe(0.6);
         //strafe(-0.05); // To compensate for edges of mat
 
-        drive(-3.5);
+        drive(-2.5);
     }
 
     public void redQualifier(HardwareMap hardwareMap,LinearOpMode op) {
@@ -257,14 +241,18 @@ public class Auto {
     public void redLeft(HardwareMap hardwareMap,LinearOpMode op) {
         initAll(op);
         op.waitForStart();
-        strafe(1.2);
+        drive(-0.6);
+        strafe(-1.15);
+        drive(-0.15);
         redCore(op);
     }
 
     public void redRight(HardwareMap hardwareMap,LinearOpMode op) {
         initAll(op);
         op.waitForStart();
-        strafe(-1.15);
+        drive(-0.6);
+        strafe(1.2);
+        drive(-0.15);
         redCore(op);
     }
 
@@ -281,7 +269,7 @@ public class Auto {
         initAll(op);
         op.waitForStart();
         drive(-0.6);
-        strafe(-1.275);
+        strafe(1.2);
         drive(-0.15);
         blueCore(op);
     }
@@ -305,7 +293,7 @@ public class Auto {
         initAll(op);
         op.waitForStart();
         drive(-0.6);
-        strafe(1.275);
+        strafe(1.275); // QUESTIONABLE NUMBER
         drive(-0.15);
 
         dump(op);
@@ -316,11 +304,40 @@ public class Auto {
         drive(2.3);
     }
 
+    public void redLeftDump(HardwareMap hardwareMap,LinearOpMode op) {
+        initAll(op);
+        op.waitForStart();
+        drive(-0.6);
+        strafe(-1.15);
+        drive(-0.15);
+
+        dump(op);
+
+        drive(0.5);
+        turnNinety(-1);
+        strafe(1.0,0.5);
+        drive(2.3);
+    }
+
+    public void redRightDump(HardwareMap hardwareMap,LinearOpMode op) {
+        initAll(op);
+        op.waitForStart();
+        drive(-0.6);
+        strafe(1.2);
+        drive(-0.15);
+
+        dump(op);
+
+        drive(0.5);
+        turnNinety(-1);
+        strafe(1.0,0.5);
+        drive(2.3);
+    }
+
     public void redLeftDuck(HardwareMap hardwareMap,LinearOpMode op) {
         initAll(op);
         op.waitForStart();
-        drive(0.5);
-        turnNinety(2);
+        drive(-0.5);
         strafe(1.6,0.75);
         redDuckOnward(op);
     }
@@ -328,8 +345,7 @@ public class Auto {
     public void redRightDuck(HardwareMap hardwareMap,LinearOpMode op) {
         initAll(op);
         op.waitForStart();
-        drive(0.5);
-        turnNinety(2);
+        drive(-0.5);
         strafe(3.6,0.75);
         redDuckOnward(op);
     }
@@ -355,16 +371,18 @@ public class Auto {
     public void redLeftPark(HardwareMap hardwareMap,LinearOpMode op) {
         initAll(op);
         op.waitForStart();
-        turnNinety(1);
-        strafe(-0.5,0.2);
+        drive(-0.5);
+        turnNinety(-1);
+        strafe(1.0,0.5);
         drive(3.3);
     }
 
     public void redRightPark(HardwareMap hardwareMap,LinearOpMode op) {
         initAll(op);
         op.waitForStart();
-        turnNinety(1);
-        strafe(-1.0,0.5);
+        drive(-0.5);
+        turnNinety(-1);
+        strafe(1.0,0.5);
         drive(1.3);
     }
 
