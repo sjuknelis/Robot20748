@@ -256,17 +256,18 @@ public class SRedTeleOp extends OpMode {
         brMotor.setPower(0);
         Orientation angles;
         double delta = 0.0;
+        double dist = 0.0;
         double startTime = runtime.seconds();
         do {
             angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
             delta = angles.firstAngle;
-            double dist = delta - goToAngle;
+            dist = delta - goToAngle;
             if ( Math.abs(dist) > 180 ) dist = -Math.signum(dist) * (180 - Math.abs(delta) + 180 - Math.abs(goToAngle)); // TEST AUTOALIGN
-            tlMotor.setPower(delta * 0.05);
-            trMotor.setPower(-delta * 0.05);
-            blMotor.setPower(delta * 0.05);
-            brMotor.setPower(-delta * 0.05);
-        } while ( Math.abs(delta) > 1 && runtime.seconds() - startTime < 0.5 );
+            tlMotor.setPower(dist * 0.05);
+            trMotor.setPower(-dist * 0.05);
+            blMotor.setPower(dist * 0.05);
+            brMotor.setPower(-dist * 0.05);
+        } while ( Math.abs(dist) > 1 && runtime.seconds() - startTime < 0.5 );
         tlMotor.setPower(0);
         trMotor.setPower(0);
         blMotor.setPower(0);
