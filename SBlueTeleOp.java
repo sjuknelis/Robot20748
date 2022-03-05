@@ -207,6 +207,11 @@ public class SBlueTeleOp extends OpMode {
 
       if ( gamepad1.y ) alignDir = -1;
       if ( gamepad1.a ) alignDir = 1;
+      if ( gamepad1.dpad_up ) {
+        Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        double delta = angles.firstAngle;
+        goToAngle = delta; // TEST ANGLE SETTING
+      }
     }
 
     private void strafe(double distance,double speed) { // left is negative, right is positive
