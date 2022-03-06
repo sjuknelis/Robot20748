@@ -32,8 +32,8 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvInternalCamera;
 import org.openftc.easyopencv.OpenCvPipeline;
 
-@TeleOp(name="SBlueTeleOp", group="Iterative Opmode")
-public class SBlueTeleOp extends OpMode {
+@TeleOp(name="STeleOp", group="Iterative Opmode")
+public class STeleOp extends OpMode {
     private DcMotor tlMotor,trMotor,blMotor,brMotor,intake,corner,slide,secondIntake;
     private BNO055IMU imu;
     private Servo gate,bucketAngle;
@@ -43,9 +43,8 @@ public class SBlueTeleOp extends OpMode {
     private int dumpState = -1;
     private double dumpTime;
     private DarkPipeline pipeline;
-    private int alignDir = -1;
+    private int alignDir = 1;
     private double initTime = 0;
-    private double goToAngle = 179;
 
     private final double TICKS_PER_REV = 537.6;
     private final double MM_PER_REV = Math.PI * 96;
@@ -130,7 +129,7 @@ public class SBlueTeleOp extends OpMode {
 
       if ( dumpState == -1 ) {
         bucketAngle.setPosition(0.0);
-        if ( gamepad1.right_trigger > 0.0 ) slide.setPower(-1.0 * gamepad1.right_trigger); // TEST TO SEE WHICH WAY TO TURN DEFAULT
+        if ( gamepad1.right_trigger > 0.0 ) slide.setPower(-1.0 * gamepad1.right_trigger);
         else if ( gamepad1.left_trigger > 0.0 && ! hardstop.isPressed() ) slide.setPower(0.5 * gamepad1.left_trigger);
         else slide.setPower(0.0);
       }
@@ -207,11 +206,6 @@ public class SBlueTeleOp extends OpMode {
 
       if ( gamepad1.y ) alignDir = -1;
       if ( gamepad1.a ) alignDir = 1;
-      if ( gamepad1.dpad_up ) {
-        Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-        double delta = angles.firstAngle;
-        goToAngle = delta; // TEST ANGLE SETTING
-      }
     }
 
     private void strafe(double distance,double speed) { // left is negative, right is positive
@@ -256,18 +250,15 @@ public class SBlueTeleOp extends OpMode {
         brMotor.setPower(0);
         Orientation angles;
         double delta = 0.0;
-        double dist = 0.0;
         double startTime = runtime.seconds();
         do {
             angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
             delta = angles.firstAngle;
-            dist = delta - goToAngle;
-            if ( Math.abs(dist) > 180 ) dist = -Math.signum(dist) * (180 - Math.abs(delta) + 180 - Math.abs(goToAngle)); // TEST AUTOALIGN
-            tlMotor.setPower(dist * 0.05);
-            trMotor.setPower(-dist * 0.05);
-            blMotor.setPower(dist * 0.05);
-            brMotor.setPower(-dist * 0.05);
-        } while ( Math.abs(dist) > 1 && runtime.seconds() - startTime < 0.5 );
+            tlMotor.setPower(delta * 0.05);
+            trMotor.setPower(-delta * 0.05);
+            blMotor.setPower(delta * 0.05);
+            brMotor.setPower(-delta * 0.05);
+        } while ( Math.abs(delta) > 1 && runtime.seconds() - startTime < 0.5 );
         tlMotor.setPower(0);
         trMotor.setPower(0);
         blMotor.setPower(0);

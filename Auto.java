@@ -95,9 +95,11 @@ public class Auto {
     }
 
     private void redCore(LinearOpMode op) {
-        dump(op);
+        int region = pipeline.getConeRegion();
 
-        drive(0.5);
+        dump(op,region);
+
+        drive(0.2);
         strafe(2.6,0.5);
 
         redDuckOnward(op);
@@ -132,7 +134,9 @@ public class Auto {
     }
 
     private void blueCore(LinearOpMode op) {
-        dump(op);
+        int region = pipeline.getConeRegion();
+
+        dump(op,region);
 
         turnNinety(-1);
         strafe(0.5);
@@ -166,7 +170,7 @@ public class Auto {
         strafe(0.6);
         //strafe(-0.05); // To compensate for edges of mat
 
-        drive(-2.5);
+        drive(-3.5);
     }
 
     public void redQualifier(HardwareMap hardwareMap,LinearOpMode op) {
@@ -241,6 +245,7 @@ public class Auto {
     public void redLeft(HardwareMap hardwareMap,LinearOpMode op) {
         initAll(op);
         op.waitForStart();
+        pipeline.getPicture();
         drive(-0.6);
         strafe(-1.15);
         drive(-0.15);
@@ -250,8 +255,9 @@ public class Auto {
     public void redRight(HardwareMap hardwareMap,LinearOpMode op) {
         initAll(op);
         op.waitForStart();
+        pipeline.getPicture();
         drive(-0.6);
-        strafe(1.2);
+        strafe(1.1);
         drive(-0.15);
         redCore(op);
     }
@@ -259,8 +265,9 @@ public class Auto {
     public void blueLeft(HardwareMap hardwareMap,LinearOpMode op) {
         initAll(op);
         op.waitForStart();
+        pipeline.getPicture();
         drive(-0.6);
-        strafe(-1.15);
+        strafe(-1.075);
         drive(-0.15);
         blueCore(op);
     }
@@ -268,6 +275,7 @@ public class Auto {
     public void blueRight(HardwareMap hardwareMap,LinearOpMode op) {
         initAll(op);
         op.waitForStart();
+        pipeline.getPicture();
         drive(-0.6);
         strafe(1.2);
         drive(-0.15);
@@ -277,8 +285,9 @@ public class Auto {
     public void blueLeftDump(HardwareMap hardwareMap,LinearOpMode op) {
         initAll(op);
         op.waitForStart();
+        pipeline.getPicture();
         drive(-0.6);
-        strafe(-1.15);
+        strafe(-1.075);
         drive(-0.15);
 
         dump(op);
@@ -292,6 +301,7 @@ public class Auto {
     public void blueRightDump(HardwareMap hardwareMap,LinearOpMode op) {
         initAll(op);
         op.waitForStart();
+        pipeline.getPicture();
         drive(-0.6);
         strafe(1.275); // QUESTIONABLE NUMBER
         drive(-0.15);
@@ -307,6 +317,7 @@ public class Auto {
     public void redLeftDump(HardwareMap hardwareMap,LinearOpMode op) {
         initAll(op);
         op.waitForStart();
+        pipeline.getPicture();
         drive(-0.6);
         strafe(-1.15);
         drive(-0.15);
@@ -322,11 +333,14 @@ public class Auto {
     public void redRightDump(HardwareMap hardwareMap,LinearOpMode op) {
         initAll(op);
         op.waitForStart();
+        pipeline.getPicture();
         drive(-0.6);
-        strafe(1.2);
+        strafe(1.1);
         drive(-0.15);
 
-        dump(op);
+        int region = pipeline.getConeRegion();
+
+        dump(op,region);
 
         drive(0.5);
         turnNinety(-1);
@@ -404,7 +418,8 @@ public class Auto {
         drive(3.3);
     }
 
-    private void dump(LinearOpMode op) {
+    private void dump(LinearOpMode op) { dump(op,0); }
+    private void dump(LinearOpMode op,int region) {
         brMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         blMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         trMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -426,24 +441,28 @@ public class Auto {
         brMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         op.sleep(500);
 
-        double revs = -3.5;
-        /*if ( region == 1 ) {
-            revs = -2.5;
-        }*/
-        bucketAngle.setPosition(0.05);
-        slide.setTargetPosition((int) (revs * TICKS_PER_REV));
-        slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        slide.setPower(0.5);
-        while ( slide.isBusy() ) {}
-        slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        bucketAngle.setPosition(1.0);
-        op.sleep(1000);
-        bucketAngle.setPosition(0.0);
-        op.sleep(1000);
-        slide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        slide.setPower(0.5);
-        while ( ! hardstop.isPressed() ) {}
-        slide.setPower(0.0);
+        if ( region == 1 ) drive(0.1);
+        else if ( region == 0 ) drive(0.175);
+
+          bucketAngle.setPosition(0.05);
+          slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+          slide.setTargetPosition((int) (-3.0 * TICKS_PER_REV));
+          slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+          slide.setPower(0.5);
+          while ( slide.isBusy() ) {}
+          bucketAngle.setPosition(1.0);
+          op.sleep(1000);
+          bucketAngle.setPosition(0.0);
+          op.sleep(1000);
+          slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+          slide.setTargetPosition((int) (3.0 * TICKS_PER_REV));
+          slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+          slide.setPower(0.5);
+          while ( slide.isBusy() ) {}
+          slide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+          slide.setPower(0.125);
+          while ( ! hardstop.isPressed() ) {}
+          slide.setPower(0.0);
     }
 
     private void drive(double distance) { drive(distance,1); }
@@ -492,6 +511,7 @@ public class Auto {
       private int coneRegion = -1;
       private int avgD = 0;
       private LinearOpMode opa;
+      private boolean doGetPicture = false;
 
         public ConePipeline(LinearOpMode opa) {
             this.opa = opa;
@@ -521,7 +541,7 @@ public class Auto {
           1
         );
 
-        if ( runtime.seconds() > 1.0 && ! firstFrame ) {
+        if ( doGetPicture && runtime.seconds() > 1.0 && ! firstFrame ) {
           firstFrame = true;
 
           double r0sum = 0;
@@ -585,6 +605,10 @@ public class Auto {
 
       public int getAvgD() {
         return avgD;
+      }
+
+      public void getPicture() {
+        doGetPicture = true;
       }
     }
 }
