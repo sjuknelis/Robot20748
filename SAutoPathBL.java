@@ -12,11 +12,11 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 @Autonomous(name="SAutoPathBL", group="Linear Opmode")
-
 public class SAutoPathBL extends LinearOpMode {
-    @Override
-    public void runOpMode() {
-        Auto a = new Auto();
-        a.blueLeft(hardwareMap,this);
-    }
+  @Override
+  public void runOpMode() {
+    // Immediately passes control over to the blueLeft function in Auto.java
+    Auto a = new Auto();
+    a.blueLeft(hardwareMap,this);
+  }
 }
